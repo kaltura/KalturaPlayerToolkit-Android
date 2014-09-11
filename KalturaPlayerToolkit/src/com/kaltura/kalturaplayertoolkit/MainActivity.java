@@ -10,6 +10,9 @@ import android.graphics.Point;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +22,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.kaltura.playersdk.PlayerViewController;
 
@@ -63,7 +67,13 @@ public class MainActivity extends Activity {
 	     if ( intent.getStringExtra(PROP_IFRAME_URL)!= null ) {
 	    	 showPlayerView();
 	     } else {
-	    	  Button goBtn = (Button) findViewById(R.id.submitBtn);
+	    	 
+	    	 TextView infoMsg = (TextView)findViewById(R.id.infoMsg);
+	    	 Spanned spanned = Html.fromHtml(getString(R.string.main_message));
+	    	 infoMsg.setMovementMethod(LinkMovementMethod.getInstance());
+	    	 infoMsg.setText(spanned);
+	    	 
+	    	/*  Button goBtn = (Button) findViewById(R.id.submitBtn);
 	          final EditText urlText = (EditText) findViewById(R.id.iframeUrl);
 
 	          mPlayerView.setVisibility(RelativeLayout.GONE);
@@ -79,7 +89,7 @@ public class MainActivity extends Activity {
 	  				}
 	              	
 	              });
-	          } 
+	          } */
 	     }
 
     }

@@ -2,7 +2,6 @@
 <resources>
 
     <string name="app_name">KalturaPlayerToolkit</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-
+    <string name="main_message">This player should be used with the Kaltura player.&lt;br/&gt; You can learn more &lt;a href="http://player.kaltura.com/docs/NativeCallout"&gt;here&lt;/a&gt;.</string> 
 </resources>

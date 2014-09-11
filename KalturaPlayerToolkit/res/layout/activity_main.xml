@@ -7,8 +7,20 @@
               android:configChanges="orientation|screenSize"
         	  android:id="@+id/content"
         	  android:background="#ffffff">
+        	  
+      <TextView
+        android:id="@+id/infoMsg"
+        android:layout_width="250dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="100dp"
+        android:layout_centerHorizontal="true"
+        android:text="" 
+        android:textColorLink="#00c9ea"
+        android:textColor="#000000"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-    
+    <!--  
     <TextView
         android:id="@+id/editText"
         android:layout_width="250dp"
@@ -39,6 +51,7 @@
             android:layout_alignLeft="@+id/iframeUrl"
             android:layout_alignRight="@+id/iframeUrl"
             android:text="Go" />
+            -->
     
     <com.kaltura.playersdk.PlayerViewController xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="match_parent"
