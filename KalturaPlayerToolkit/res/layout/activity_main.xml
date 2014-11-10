@@ -6,52 +6,52 @@
               android:layout_height="fill_parent"
               android:configChanges="orientation|screenSize"
         	  android:id="@+id/content"
-        	  android:background="#ffffff">
+        	  android:background="@drawable/bg">
+        	  
+     <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:src="@drawable/logo" />
+     
+     <TextView
+        android:id="@+id/textView"
+        android:layout_width="150dp"
+        android:layout_height="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="100dp"
+        android:text="@string/footer"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#cccccc" />
         	  
       <TextView
         android:id="@+id/infoMsg"
         android:layout_width="250dp"
-        android:layout_height="fill_parent"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="100dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/imageView"
         android:layout_centerHorizontal="true"
         android:text="" 
         android:textColorLink="#00c9ea"
-        android:textColor="#000000"
+        android:textColor="#ffffff"
+        android:gravity="center"
         android:textAppearance="?android:attr/textAppearanceLarge"/>
+      
+     <Button
+       android:layout_width="200dp"
+       android:layout_height="40dp"
+       android:text="@string/demo"
+       android:id="@+id/demoBtn"
+       android:background="@drawable/demo_btn_up"
+       android:layout_marginTop="15dp"
+       android:layout_below="@+id/infoMsg"
+       android:layout_centerHorizontal="true"
+       android:textColor="#ffffff"/>
 
-    <!--  
-    <TextView
-        android:id="@+id/editText"
-        android:layout_width="250dp"
-        android:layout_height="18dp"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="100dp"
-        android:layout_centerHorizontal="true"
-        android:text="Enter Iframe URL:" />
-
-    <EditText
-        android:id="@+id/iframeUrl"
-        android:layout_width="250dp"
-        android:layout_height="25dp"
-        android:layout_alignLeft="@+id/editText"
-        android:layout_alignRight="@+id/editText"
-        android:layout_below="@+id/editText"
-        android:layout_marginTop="15dp"
-        android:background="#ffffff"
-        android:hint="http://"
-        android:singleLine="true" />
-
-    <Button
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:id="@+id/submitBtn"
-            android:layout_marginTop="15dp"
-            android:layout_below="@+id/iframeUrl"
-            android:layout_alignLeft="@+id/iframeUrl"
-            android:layout_alignRight="@+id/iframeUrl"
-            android:text="Go" />
-            -->
     
     <com.kaltura.playersdk.PlayerViewController xmlns:android="http://schemas.android.com/apk/res/android"
 		android:layout_width="match_parent"

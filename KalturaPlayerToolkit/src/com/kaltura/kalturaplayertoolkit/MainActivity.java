@@ -1,5 +1,7 @@
 package com.kaltura.kalturaplayertoolkit;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -20,7 +22,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.webkit.WebView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -43,18 +44,41 @@ public class MainActivity extends Activity {
 
         mPlayerView = (PlayerViewController) findViewById( R.id.player );
         mPlayerView.setActivity(MainActivity.this);
+        Button demoBtn = (Button)findViewById( R.id.demoBtn );
+        demoBtn.setOnClickListener( new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				showPlayerView();
+				//show demo
+				mPlayerView.addComponents( "243342", "0_c0r624gh", MainActivity.this);
+			}
+        	
+        });
         
         Intent intent = getIntent();
         
         ///////////////////////////////////////////////////////////////////////////
         //for tests
-     //  intent.putExtra(PROP_IFRAME_URL, "http://10.0.20.117/html5.kaltura/mwEmbed/mwEmbedFrame.php/p/524241/sp/52424100/uiconf_id/25906371/wid/_524241/entry_id/0_8zzalxul?iframeembed=true&#038;playerId=kaltura_player_1404535475&#038;entry_id=0_8zzalxul");
-        /////////////////////////////////////////////
+    //doubleclick
+      // intent.putExtra(PROP_IFRAME_URL, "http://10.0.21.62/html5.kaltura/mwEmbed/mwEmbedFrame.php/p/524241/sp/52424100/uiconf_id/25906371/wid/_524241/entry_id/0_8zzalxul?iframeembed=true&#038;playerId=kaltura_player_1404535475&#038;entry_id=0_8zzalxul");
+     //vast
+     //   intent.putExtra(PROP_IFRAME_URL, "http://192.168.1.14/html5.kaltura/mwEmbed/mwEmbedFrame.php/wid/_243342/uiconf_id/13920942/entry_id/0_uka1msg4/?&flashvars%5BimageDefaultDuration%5D=2&flashvars%5BautoPlay%5D=false&flashvars%5BautoMute%5D=false&");
+      // widevine 
+      //  intent.putExtra(PROP_IFRAME_URL, "http://192.168.1.14/html5.kaltura/mwEmbed/mwEmbedFrame.php/p/524241/sp/52424100/uiconf_id/26356811/wid/_524241/entry_id/0_lnthb45u?iframeembed=true&#038;playerId=kaltura_player_1404535475&#038;entry_id=0_lnthb45u");
+ 
+       /////////////////////////////////////////////
         
 	     // check if this intent is started via browser
 	     if ( Intent.ACTION_VIEW.equals( intent.getAction() ) ) {
 	       Uri uri = intent.getData();
-	       String[] params = uri.toString().split(":=");
+	       String[] params = null;
+			try {
+				params = URLDecoder.decode(uri.toString(), "UTF-8").split(":=");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	       if ( params!=null && params.length > 1 ) {
 		       String iframeUrl = params[1];
 		       intent.putExtra(PROP_IFRAME_URL, iframeUrl);
@@ -65,7 +89,7 @@ public class MainActivity extends Activity {
 	     }
 	     
 	     if ( intent.getStringExtra(PROP_IFRAME_URL)!= null ) {
-	    	 showPlayerView();
+	    	 showIframeView();
 	     } else {
 	    	 
 	    	 TextView infoMsg = (TextView)findViewById(R.id.infoMsg);
@@ -97,9 +121,13 @@ public class MainActivity extends Activity {
     private void showPlayerView() {
 		mPlayerView.setVisibility(RelativeLayout.VISIBLE);
         Point size = new Point();
-        getWindowManager().getDefaultDisplay().getSize(size);
-        mPlayerView.addComponents( getIntent().getStringExtra(PROP_IFRAME_URL), this);
+        getWindowManager().getDefaultDisplay().getSize(size);       
         mPlayerView.setPlayerViewDimensions( size.x, size.y, 0, 0 );
+    }
+    
+    private void showIframeView() {
+    	showPlayerView();
+    	mPlayerView.addComponents( getIntent().getStringExtra(PROP_IFRAME_URL), this);
     }
     
     @Override
@@ -122,8 +150,23 @@ public class MainActivity extends Activity {
         			        	
         }
     }
+    
+    @Override
+    public void onPause() {
+    	super.onPause();
+    	if ( mPlayerView!=null ) {
+    		mPlayerView.releaseAndSavePosition();
+    	}
+    }
 
-
+    @Override
+    public void onResume() {
+    	super.onResume();
+    	if ( mPlayerView!=null ) {
+    		mPlayerView.resumePlayer();
+    	}
+    }
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
