@@ -22,14 +22,10 @@ import android.text.method.LinkMovementMethod;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.KeyCharacterMap;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewConfiguration;
-import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -77,7 +73,6 @@ public class MainActivity extends Activity {
 					
 					@Override
 					public void onKPlayerEvent(Object body) {
-//						getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
 						setFullScreen();
 						
 					}
@@ -166,14 +161,9 @@ public class MainActivity extends Activity {
     }
     
     private void setFullScreen (){
-        if (Build.VERSION.SDK_INT < 16) {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }else{
-        	View decorView = getWindow().getDecorView();
-        	int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
-	        decorView.setSystemUiVisibility(uiOptions);
-        }
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
 
         int[] arr = getRealScreenSize();
         mPlayerView.setPlayerViewDimensions(arr[0], arr[1]);
@@ -246,15 +236,9 @@ public class MainActivity extends Activity {
 					                    		Point size = new Point();
 					                    		getWindowManager().getDefaultDisplay().getSize(size);
 					                    		mPlayerView.setPlayerViewDimensions( size.x, size.y, 0, 0 );
-					                    		
-					                    		if (Build.VERSION.SDK_INT < 16) {
-					                                getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
-					                                		WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-					                            }else{
-					                            	View decorView = getWindow().getDecorView();
-					                            	int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-					                    	        decorView.setSystemUiVisibility(uiOptions);
-					                            }
+					                            View decorView = getWindow().getDecorView();
+					                            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+					                            decorView.setSystemUiVisibility(uiOptions); 
 					                    }
 					                });
 					            }
