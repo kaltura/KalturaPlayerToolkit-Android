@@ -1,12 +1,16 @@
 package com.kaltura.kalturaplayertoolkit;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.Uri;
@@ -15,17 +19,26 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.kaltura.playersdk.PlayerViewController;
+import com.kaltura.playersdk.events.KPlayerEventListener;
+import com.kaltura.playersdk.events.KPlayerJsCallbackReadyListener;
+import com.kaltura.playersdk.events.OnToggleFullScreenListener;
 
 
 public class MainActivity extends Activity {
@@ -36,20 +49,54 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        
         setContentView(R.layout.activity_main);
         
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
-
+        
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+        
         mPlayerView = (PlayerViewController) findViewById( R.id.player );
         mPlayerView.setActivity(MainActivity.this);
+        mPlayerView.setOnFullScreenListener(new OnToggleFullScreenListener() {
+			
+			@Override
+			public void onToggleFullScreen() {
+				setFullScreen();
+				
+			}
+		});
+        mPlayerView.registerJsCallbackReady(new KPlayerJsCallbackReadyListener() {
+			
+			@Override
+			public void jsCallbackReady() {
+				mPlayerView.addKPlayerEventListener("doPlay", new KPlayerEventListener() {
+					
+					@Override
+					public void onKPlayerEvent(Object body) {
+//						getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+						setFullScreen();
+						
+					}
+					
+					@Override
+					public String getCallbackName() {
+						return "EventListenerDoPlay";
+					}
+				});
+				
+			}
+		});
         Button demoBtn = (Button)findViewById( R.id.demoBtn );
         demoBtn.setOnClickListener( new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
 				showPlayerView();
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 				//show demo
 				mPlayerView.addComponents( "243342", "0_c0r624gh", MainActivity.this);
 			}
@@ -118,6 +165,62 @@ public class MainActivity extends Activity {
 
     }
     
+    private void setFullScreen (){
+        if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }else{
+        	View decorView = getWindow().getDecorView();
+        	int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
+	        decorView.setSystemUiVisibility(uiOptions);
+        }
+
+        int[] arr = getRealScreenSize();
+        mPlayerView.setPlayerViewDimensions(arr[0], arr[1]);
+    }
+
+    @SuppressLint("NewApi")
+    private int[] getRealScreenSize() {
+
+        final DisplayMetrics metrics = new DisplayMetrics();
+        Display display = getWindowManager().getDefaultDisplay();
+        Method mGetRawH = null, mGetRawW = null;
+
+        //Not real dimensions
+        display.getMetrics(metrics);
+        int width = metrics.heightPixels;
+        int height = metrics.widthPixels;
+
+        try {
+            // For JellyBeans and onward
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                display.getRealMetrics(metrics);
+
+                //Real dimensions
+                width = metrics.heightPixels;
+                height = metrics.widthPixels;
+            } else {
+                mGetRawH = Display.class.getMethod("getRawHeight");
+                mGetRawW = Display.class.getMethod("getRawWidth");
+
+                try {
+                    width = (Integer) mGetRawW.invoke(display);
+                    height = (Integer) mGetRawH.invoke(display);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (NoSuchMethodException e3) {
+            e3.printStackTrace();
+        }
+
+        return new int[]{height, width};
+    }
+    
     private void showPlayerView() {
 		mPlayerView.setVisibility(RelativeLayout.VISIBLE);
         Point size = new Point();
@@ -139,10 +242,19 @@ public class MainActivity extends Activity {
 	    			            @Override
 					            public void run() {
 					                runOnUiThread(new Runnable() {
-					                    public void run() {
-					                    	 Point size = new Point();
-					    			        getWindowManager().getDefaultDisplay().getSize(size);
-					    			        mPlayerView.setPlayerViewDimensions( size.x, size.y, 0, 0 );
+					                    public void run(){
+					                    		Point size = new Point();
+					                    		getWindowManager().getDefaultDisplay().getSize(size);
+					                    		mPlayerView.setPlayerViewDimensions( size.x, size.y, 0, 0 );
+					                    		
+					                    		if (Build.VERSION.SDK_INT < 16) {
+					                                getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
+					                                		WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+					                            }else{
+					                            	View decorView = getWindow().getDecorView();
+					                            	int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+					                    	        decorView.setSystemUiVisibility(uiOptions);
+					                            }
 					                    }
 					                });
 					            }
