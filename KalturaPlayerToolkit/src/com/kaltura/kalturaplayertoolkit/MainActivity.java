@@ -91,7 +91,6 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				showPlayerView();
-				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 				//show demo
 				mPlayerView.addComponents( "243342", "0_c0r624gh", MainActivity.this);
 			}
@@ -169,7 +168,6 @@ public class MainActivity extends Activity {
         mPlayerView.setPlayerViewDimensions(arr[0], arr[1]);
     }
 
-    @SuppressLint("NewApi")
     private int[] getRealScreenSize() {
 
         final DisplayMetrics metrics = new DisplayMetrics();
@@ -212,6 +210,7 @@ public class MainActivity extends Activity {
     }
     
     private void showPlayerView() {
+    	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 		mPlayerView.setVisibility(RelativeLayout.VISIBLE);
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);       
