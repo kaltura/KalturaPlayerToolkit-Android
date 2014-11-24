@@ -160,53 +160,22 @@ public class MainActivity extends Activity {
     }
     
     private void setFullScreen (){
-        View decorView = getWindow().getDecorView();
+        View decorView = getWindow().getDecorView(); //navigation view
         int uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
 
-        int[] arr = getRealScreenSize();
-        mPlayerView.setPlayerViewDimensions(arr[0], arr[1]);
+        Point size = getRealScreenSize();
+        mPlayerView.setPlayerViewDimensions(size.x, size.y);
     }
 
-    private int[] getRealScreenSize() {
+    private Point getRealScreenSize() {
 
         final DisplayMetrics metrics = new DisplayMetrics();
         Display display = getWindowManager().getDefaultDisplay();
-        Method mGetRawH = null, mGetRawW = null;
-
-        //Not real dimensions
-        display.getMetrics(metrics);
-        int width = metrics.heightPixels;
-        int height = metrics.widthPixels;
-
-        try {
-            // For JellyBeans and onward
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                display.getRealMetrics(metrics);
-
-                //Real dimensions
-                width = metrics.heightPixels;
-                height = metrics.widthPixels;
-            } else {
-                mGetRawH = Display.class.getMethod("getRawHeight");
-                mGetRawW = Display.class.getMethod("getRawWidth");
-
-                try {
-                    width = (Integer) mGetRawW.invoke(display);
-                    height = (Integer) mGetRawH.invoke(display);
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            }
-        } catch (NoSuchMethodException e3) {
-            e3.printStackTrace();
-        }
-
-        return new int[]{height, width};
+        display.getRealMetrics(metrics); //Real dimensions - including decoration display
+        int height = metrics.heightPixels;
+        int width = metrics.widthPixels;
+        return new Point(width,height);
     }
     
     private void showPlayerView() {
@@ -234,10 +203,10 @@ public class MainActivity extends Activity {
 					                    public void run(){
 					                    		Point size = new Point();
 					                    		getWindowManager().getDefaultDisplay().getSize(size);
-					                    		mPlayerView.setPlayerViewDimensions( size.x, size.y, 0, 0 );
-					                            View decorView = getWindow().getDecorView();
-					                            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-					                            decorView.setSystemUiVisibility(uiOptions); 
+						                    	mPlayerView.setPlayerViewDimensions( size.x, size.y, 0, 0 );
+						                    	View decorView = getWindow().getDecorView();
+						                    	int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+						                    	decorView.setSystemUiVisibility(uiOptions); 
 					                    }
 					                });
 					            }
