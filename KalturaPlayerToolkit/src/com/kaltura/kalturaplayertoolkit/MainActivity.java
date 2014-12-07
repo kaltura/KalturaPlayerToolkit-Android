@@ -1,8 +1,6 @@
 package com.kaltura.kalturaplayertoolkit;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -42,7 +41,7 @@ public class MainActivity extends Activity {
 	public static final String PROP_IFRAME_URL = "iframeUrl";
 	
 	private PlayerViewController mPlayerView;
-    @Override
+    @SuppressLint("NewApi") @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -65,6 +64,7 @@ public class MainActivity extends Activity {
 				
 			}
 		});
+        
         mPlayerView.registerJsCallbackReady(new KPlayerJsCallbackReadyListener() {
 			
 			@Override
@@ -73,6 +73,7 @@ public class MainActivity extends Activity {
 					
 					@Override
 					public void onKPlayerEvent(Object body) {
+						getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 						setFullScreen();
 						
 					}
@@ -80,6 +81,19 @@ public class MainActivity extends Activity {
 					@Override
 					public String getCallbackName() {
 						return "EventListenerDoPlay";
+					}
+				});
+				
+				mPlayerView.addKPlayerEventListener("doPause", new KPlayerEventListener() {
+					
+					@Override
+					public void onKPlayerEvent(Object body) {
+						getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+					}
+					
+					@Override
+					public String getCallbackName() {
+						return "EventListenerDoPause";
 					}
 				});
 				
@@ -188,7 +202,7 @@ public class MainActivity extends Activity {
     
     private void showIframeView() {
     	showPlayerView();
-    	mPlayerView.addComponents( getIntent().getStringExtra(PROP_IFRAME_URL), this);
+    	mPlayerView.addComponents( getIntent().getStringExtra(PROP_IFRAME_URL), MainActivity.this);
     }
     
     @Override
@@ -219,10 +233,12 @@ public class MainActivity extends Activity {
     public void onPause() {
     	super.onPause();
     	if ( mPlayerView!=null ) {
+    		mPlayerView.pause();
     		mPlayerView.releaseAndSavePosition();
+    		
     	}
     }
-
+    
     @Override
     public void onResume() {
     	super.onResume();
