@@ -1,7 +1,6 @@
 package com.kaltura.kalturaplayertoolkit;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.util.Timer;
@@ -31,7 +30,9 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.kaltura.playersdk.KPPlayerConfig;
 import com.kaltura.playersdk.PlayerViewController;
+import com.kaltura.playersdk.RequestDataSource;
 import com.kaltura.playersdk.events.KPlayerEventListener;
 import com.kaltura.playersdk.events.KPlayerJsCallbackReadyListener;
 import com.kaltura.playersdk.events.OnToggleFullScreenListener;
@@ -42,7 +43,7 @@ public class MainActivity extends Activity {
 	public static final String PROP_IFRAME_URL = "iframeUrl";
 	
 	private PlayerViewController mPlayerView;
-    @Override
+    @SuppressLint("NewApi") @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -55,7 +56,7 @@ public class MainActivity extends Activity {
         
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
         
-        mPlayerView = (PlayerViewController) findViewById( R.id.player );
+        mPlayerView = (PlayerViewController) findViewById(R.id.player);
         mPlayerView.setActivity(MainActivity.this);
         mPlayerView.setOnFullScreenListener(new OnToggleFullScreenListener() {
 			
@@ -92,7 +93,47 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				showPlayerView();
 				//show demo
-				mPlayerView.addComponents( "243342", "0_c0r624gh", MainActivity.this);
+				mPlayerView.setComponents(new RequestDataSource() {
+					
+					@Override
+					public String getWid() {
+						return "_243342";
+					}
+					
+					@Override
+					public String getUrid() {
+						// TODO Auto-generated method stub
+						return null;
+					}
+					
+					@Override
+					public String getUiConfId() {
+						return "21384602";
+					}
+					
+					@Override
+					public String getServerAddress() {
+						return "http://kgit.html5video.org/tags/v2.23.rc4/mwEmbedFrame.php";
+					}
+					
+					@Override
+					public KPPlayerConfig getFlashVars() {
+						KPPlayerConfig playerConfig = new KPPlayerConfig();
+//						playerConfig.setConfigKey(KPPlayerConfig.KP_PLAYER_CONFIG_LEAD_ANDROID_HLS, "true");
+						return playerConfig;
+					}
+					
+					@Override
+					public String getEntryId() {
+						return "0_c0r624gh";
+					}
+					
+					@Override
+					public String getCacheStr() {
+						// TODO Auto-generated method stub
+						return null;
+					}
+				});
 			}
         	
         });
@@ -168,16 +209,33 @@ public class MainActivity extends Activity {
         mPlayerView.setPlayerViewDimensions(size.x, size.y);
     }
 
-    private Point getRealScreenSize() {
+     @SuppressLint("NewApi") private Point getRealScreenSize(){
+    	 Display display = getWindowManager().getDefaultDisplay();
+    	    int realWidth = 0;
+    	    int realHeight = 0;
 
-        final DisplayMetrics metrics = new DisplayMetrics();
-        Display display = getWindowManager().getDefaultDisplay();
-        display.getRealMetrics(metrics); //Real dimensions - including decoration display
-        int height = metrics.heightPixels;
-        int width = metrics.widthPixels;
-        return new Point(width,height);
-    }
-    
+    	    if (Build.VERSION.SDK_INT >= 17){
+    	        //new pleasant way to get real metrics
+    	        DisplayMetrics realMetrics = new DisplayMetrics();
+    	        display.getRealMetrics(realMetrics);
+    	        realWidth = realMetrics.widthPixels;
+    	        realHeight = realMetrics.heightPixels;
+
+    	    } else {
+    	        try {
+    	            Method mGetRawH = Display.class.getMethod("getRawHeight");
+    	            Method mGetRawW = Display.class.getMethod("getRawWidth");
+    	            realWidth = (Integer) mGetRawW.invoke(display);
+    	            realHeight = (Integer) mGetRawH.invoke(display);
+    	        } catch (Exception e) {
+    	            realWidth = display.getWidth();
+    	            realHeight = display.getHeight();
+    	            Log.e("Display Info", "Couldn't use reflection to get the real display metrics.");
+    	        }
+
+    	    }
+    	   return new Point(realWidth,realHeight);
+     }
     private void showPlayerView() {
     	setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 		mPlayerView.setVisibility(RelativeLayout.VISIBLE);
@@ -188,7 +246,7 @@ public class MainActivity extends Activity {
     
     private void showIframeView() {
     	showPlayerView();
-    	mPlayerView.addComponents( getIntent().getStringExtra(PROP_IFRAME_URL), this);
+    	mPlayerView.setComponents( getIntent().getStringExtra(PROP_IFRAME_URL));
     }
     
     @Override
