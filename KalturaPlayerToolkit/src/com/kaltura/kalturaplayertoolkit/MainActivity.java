@@ -30,7 +30,9 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.kaltura.playersdk.KPPlayerConfig;
 import com.kaltura.playersdk.PlayerViewController;
+import com.kaltura.playersdk.RequestDataSource;
 import com.kaltura.playersdk.events.KPlayerEventListener;
 import com.kaltura.playersdk.events.KPlayerJsCallbackReadyListener;
 import com.kaltura.playersdk.events.OnToggleFullScreenListener;
@@ -69,7 +71,7 @@ public class MainActivity extends Activity {
 			
 			@Override
 			public void jsCallbackReady() {
-				mPlayerView.addKPlayerEventListener("doPlay", new KPlayerEventListener() {
+				mPlayerView.addKPlayerEventListener("playerPlayed", new KPlayerEventListener() {
 					
 					@Override
 					public void onKPlayerEvent(Object body) {
@@ -80,11 +82,11 @@ public class MainActivity extends Activity {
 					
 					@Override
 					public String getCallbackName() {
-						return "EventListenerDoPlay";
+						return "EventListenerPlayerPlayed";
 					}
 				});
 				
-				mPlayerView.addKPlayerEventListener("doPause", new KPlayerEventListener() {
+				mPlayerView.addKPlayerEventListener("playerPaused", new KPlayerEventListener() {
 					
 					@Override
 					public void onKPlayerEvent(Object body) {
@@ -93,7 +95,7 @@ public class MainActivity extends Activity {
 					
 					@Override
 					public String getCallbackName() {
-						return "EventListenerDoPause";
+						return "EventListenerPlayerPaused";
 					}
 				});
 				
@@ -106,7 +108,48 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				showPlayerView();
 				//show demo
-				mPlayerView.addComponents( "243342", "0_c0r624gh", MainActivity.this);
+				mPlayerView.setComponents(new RequestDataSource() {
+					
+					@Override
+					public String getWid() {
+						return "_243342";
+					}
+					
+					@Override
+					public String getUrid() {
+						// TODO Auto-generated method stub
+						return null;
+					}
+					
+					@Override
+					public String getUiConfId() {
+						return "21384602";
+					}
+					
+					@Override
+					public String getServerAddress() {
+						
+						return "http://cdnbakmi.kaltura.com/html5/html5lib/v2.20/mwEmbedFrame.php";
+					}
+					
+					@Override
+					public KPPlayerConfig getFlashVars() {
+						KPPlayerConfig playerConfig = new KPPlayerConfig();
+						playerConfig.setConfigKey(KPPlayerConfig.Key.KP_PLAYER_CONFIG_LEAD_ANDROID_HLS, "true");
+						return playerConfig;
+					}
+					
+					@Override
+					public String getEntryId() {
+						return "0_c0r624gh";
+					}
+					
+					@Override
+					public String getCacheStr() {
+						// TODO Auto-generated method stub
+						return null;
+					}
+				});
 			}
         	
         });
@@ -202,7 +245,7 @@ public class MainActivity extends Activity {
     
     private void showIframeView() {
     	showPlayerView();
-    	mPlayerView.addComponents( getIntent().getStringExtra(PROP_IFRAME_URL), MainActivity.this);
+    	mPlayerView.setComponents( getIntent().getStringExtra(PROP_IFRAME_URL));
     }
     
     @Override
@@ -233,7 +276,6 @@ public class MainActivity extends Activity {
     public void onPause() {
     	super.onPause();
     	if ( mPlayerView!=null ) {
-    		mPlayerView.pause();
     		mPlayerView.releaseAndSavePosition();
     		
     	}
