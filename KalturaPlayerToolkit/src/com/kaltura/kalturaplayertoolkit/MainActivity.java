@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -70,17 +71,31 @@ public class MainActivity extends Activity {
 			
 			@Override
 			public void jsCallbackReady() {
-				mPlayerView.addKPlayerEventListener("doPlay", new KPlayerEventListener() {
+				mPlayerView.addKPlayerEventListener("playerPlayed", new KPlayerEventListener() {
 					
 					@Override
 					public void onKPlayerEvent(Object body) {
+						getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 						setFullScreen();
 						
 					}
 					
 					@Override
 					public String getCallbackName() {
-						return "EventListenerDoPlay";
+						return "EventListenerPlayerPlayed";
+					}
+				});
+				
+				mPlayerView.addKPlayerEventListener("playerPaused", new KPlayerEventListener() {
+					
+					@Override
+					public void onKPlayerEvent(Object body) {
+						getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+					}
+					
+					@Override
+					public String getCallbackName() {
+						return "EventListenerPlayerPaused";
 					}
 				});
 				
