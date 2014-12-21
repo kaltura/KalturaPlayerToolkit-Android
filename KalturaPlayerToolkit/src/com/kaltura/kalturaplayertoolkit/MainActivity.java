@@ -71,7 +71,7 @@ public class MainActivity extends Activity {
 			
 			@Override
 			public void jsCallbackReady() {
-				mPlayerView.addKPlayerEventListener("doPlay", new KPlayerEventListener() {
+				mPlayerView.addKPlayerEventListener("playerPlayed", new KPlayerEventListener() {
 					
 					@Override
 					public void onKPlayerEvent(Object body) {
@@ -82,11 +82,12 @@ public class MainActivity extends Activity {
 					
 					@Override
 					public String getCallbackName() {
-						return "EventListenerDoPlay";
+						return "EventListenerPlayerPlayed";
 					}
 				});
-				mPlayerView.addKPlayerEventListener("doPause", new KPlayerEventListener() {
-										
+				
+				mPlayerView.addKPlayerEventListener("playerPaused", new KPlayerEventListener() {
+					
 					@Override
 					public void onKPlayerEvent(Object body) {
 						getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -94,10 +95,9 @@ public class MainActivity extends Activity {
 					
 					@Override
 					public String getCallbackName() {
-						return "EventListenerDoPause";
+						return "EventListenerPlayerPaused";
 					}
 				});
-									
 				
 			}
 		});
@@ -292,7 +292,6 @@ public class MainActivity extends Activity {
     public void onPause() {
     	super.onPause();
     	if ( mPlayerView!=null ) {
-    		mPlayerView.pause();
     		mPlayerView.releaseAndSavePosition();
     	}
     }
